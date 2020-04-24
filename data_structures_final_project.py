@@ -24,6 +24,7 @@ Then you can start making API calls!
 
 # Class for Linked List
 class Node:
+    # default contructor for head, and next value
     def __init__(self, data=None, next=None):
         self.data = data
         self.next = next
@@ -35,6 +36,15 @@ class linkedList:
     # default constructor
     def __init__(self):
         self.head = None
+        self.temp = 0
+        self.tempHigh = 0
+        self.tempLow = 0
+        self.humidity = 0
+        self.windSpeed = 0
+        self.cloudCover = 0
+        self.city = 'City'
+        self.country = 'US'
+        self.description = 'Clear Skies'
         self.queue = []
 
     # adds a new node
@@ -58,51 +68,45 @@ class linkedList:
 
     # finds a certain item within queue
     def find(self, key):
+        print('\n')
         for x in self.queue:
             if key.title() in x:
                 return x
         return "Sorry, " + key.title() + " was not in the list. Perhaps you didn't check that city?"
-        """current = self.head
-        while current:
-            if key.title() in current.data:
-                return current.next.data + 'in ' + key.title()
-            else:
-                current = current.next
-        return "Can't find within linked list"  # Will be None if not found"""
-
-    """def reverse(self):
-        current = self.head
-        prev_node = None
-        next_node = None
-        while current:
-            next_node = current.next
-            current.next = prev_node
-            prev_node = current
-            current = next_node
-        self.head = prev_node"""
-
-    """def printList(self):
-        current = self.head
-        while current:
-            print(current.data)
-            current = current.next"""
-
+    
     # print list
     def printList(self):
         for x in self.queue:
             print(x)
 
+    def removeCityFromQueue(self, cityName):
+        for x in self.queue:
+            if cityName in x:
+                self.queue.remove(x)
+                return '\n\n' + cityName.title() + ' has been removed.'
+        return "Sorry, " + cityName.title() + " was not in the list. Perhaps you didn't check that city?"
+
+    def printCitiesChecked(self):
+        numberOfSpaces = 2
+        for x in self.queue:
+            city = x.split('  ')
+            ' '.join(city[:numberOfSpaces]), ' '.join(city[numberOfSpaces:])
+            print(city[0])
+
+
     def sortAndPrintList(self):
-        print('\nBefore Sort:')
+        print('\n*** Before Sort ***')
         self.printList()
         self.queue.sort()
-        print('\nAfter Sort:')
+        print('\n*** After Sort ***')
         self.printList()
 
     # clears the linked list, so they don't add up and up every time a user
     # enters in a zip code
     def deleteExistingNodes(self):
+        # makes the head None
         current = self.head = None
+        # iterates through each node to delete
         while current:
             del current.next.data
             current = current.next
@@ -124,48 +128,30 @@ class linkedList:
                 # kelvin unit to convert to F
                 kelvin = 273.15
 
-                # parsing json
-                temp = response["main"]["temp"]
-                tempHigh = response["main"]["temp_max"]
-                tempLow = response["main"]["temp_min"]
-                humidity = response["main"]["humidity"]
-                windSpeed = response["wind"]["speed"]
-                cloudCover = response["clouds"]["all"]
-                city = response["name"]
-                country = response["sys"]["country"];
-                description = response["weather"][0]["description"]
-
-                # convert temp from K to F
-                temp = ((temp - kelvin) * 9 / 5) + 32
-                tempHigh = ((tempHigh - kelvin) * 9 / 5) + 32
-                tempLow = ((tempLow - kelvin) * 9 / 5) + 32
-
+                # to convert windspeed from m/s to MPH
                 windSpeedConversion = 2.237
 
-                # converts speed to MPH from m/s
-                windSpeed *= windSpeedConversion
-
-                # sets values
-                # also, formats the float values to 0 decinals
-                __temp = ("%.0f" % temp)
-                __tempHigh = ("%.0f" % tempHigh)
-                __tempLow = ("%.0f" % tempLow)
-                __humidity = ("%.0f" % humidity)
-                __windSpeed = ("%.0f" % windSpeed)
-                __cloudCover = ("%.0f" % cloudCover)
-                __city = city
-                __country = country
-                __description = description
+                # sets values by parsing the JSON response.
+                # also, formats the float values to 0 decimals
+                self.temp = "%.0f" % float((((response["main"]["temp"] - kelvin) * 9) / 5) + 32) # convert from Kelvin to Fahrenheit
+                self.tempHigh = "%.0f" % float((((response["main"]["temp_max"] - kelvin) * 9) / 5) + 32) # convert from Kelvin to Fahrenheit
+                self.tempLow = "%.0f" % float((((response["main"]["temp_min"] - kelvin) * 9) / 5) + 32) # convert from Kelvin to Fahrenheit
+                self.humidity = "%.0f" % float(response["main"]["humidity"])
+                self.windSpeed = "%.0f" % float(((response["wind"]["speed"] * windSpeedConversion) + response["wind"]["speed"])) # convert from m/s to MPH
+                self.cloudCover = ("%.0f" % response["clouds"]["all"])
+                self.city = response["name"]
+                self.country = response["sys"]["country"];
+                self.description = response["weather"][0]["description"]
 
                 # creates a new linked list
-                llist.append('City: ' + str(__city) + ' ')
-                llist.append('Current Tempurature: ' + str(__temp) + ' F  ')
-                llist.append('High Tempurature: ' + str(__tempHigh) + ' F  ')
-                llist.append('Low Tempurature: ' + str(__tempLow) + ' F  ')
-                llist.append('Humidity: ' + str(__humidity) + '%  ')
-                llist.append('Wind Speed: ' + str(__windSpeed) + ' MPH  ')
-                llist.append('Cloud Cover: ' + str(__cloudCover) + '%  ')
-                llist.append('Description: ' + str(__description).title())
+                llist.append('City: ' + str(self.city) + ' ')
+                llist.append('Current Tempurature: ' + str(self.temp) + ' F  ')
+                llist.append('High Tempurature: ' + str(self.tempHigh) + ' F  ')
+                llist.append('Low Tempurature: ' + str(self.tempLow) + ' F  ')
+                llist.append('Humidity: ' + str(self.humidity) + '%  ')
+                llist.append('Wind Speed: ' + str(self.windSpeed) + ' MPH  ')
+                llist.append('Cloud Cover: ' + str(self.cloudCover) + '%  ')
+                llist.append('Description: ' + str(self.description).title())
 
                 # adds to list
                 llist.addToList()
@@ -179,19 +165,21 @@ class linkedList:
                 # try catch statement to if they have an error
                 # in their zip code, or an error trying to make the request
                 print('\n\nSorry, there was an error')
-                promptUserForZipCode = raw_input('Make sure the zip code is 5 digits and is valid (-999): ')
+                promptUserForZipCode = raw_input('Make sure the zip code is 5 digits, and double-check it is valid (-999): ')
                 print('\n')
 
     # once the user is done adding cities,
     # there are some prompts to do some tasks
     def promptUserForAction(self, llist):
 
+        print('\n\n*** Cities Checked So Far ***')
+        llist.printList()
         # displays what actions user can do
         promptUserAction = raw_input(
             '\nEnter 0: Sort List Based on City Name\nEnter 1: Search for City\nEnter 2: Get Weather '
-            'Info for Different City\nEnter 3: Exit\nPlease Make Selection: ')
+            'Info for Different City\nEnter 3: Print Current List\nEnter 4: Remove City\nEnter 5: Exit\n\nPlease Make Selection: ')
 
-        while promptUserAction != '3':
+        while promptUserAction != '5':
             # sorts and prints list
             if promptUserAction == '0':
                 llist.sortAndPrintList()
@@ -202,18 +190,36 @@ class linkedList:
             # makes more API calls
             elif promptUserAction == '2':
                 llist.makeAPICall(llist)
+            elif promptUserAction == '3':
+                print('\n*** Cities You Have Checked ***')
+                llist.printList()
+            elif promptUserAction == '4':
+                print('\n\n*** Cities You Can Remove ***')
+                llist.printCitiesChecked()
+                cityToRemove = raw_input('\nWhat city do you want to remove?: ')
+                print(llist.removeCityFromQueue(cityToRemove.title()))
+                print('\n\nList After Removal')
+                llist.printList()
             promptUserAction = raw_input(
                 '\nEnter 0: Sort List Based on City Name\nEnter 1: Search for City\nEnter 2: Get Weather '
-                'Info for Different City\nEnter 3: Exit\nPlease Make Selection: ')
+                'Info for Different City\nEnter 3: Print Current List\nEnter 4: Remove City\nEnter 5: Exit\n\nPlease Make Selection: ')
 
 
 # main
 if __name__ == '__main__':
+    # greet user
+    print('*** Check Weather Information ***')
+    # creates a linkedList object
     llist = linkedList()
 
+    # calls the make API call function and passes the object in
     llist.makeAPICall(llist)
+
+    # prompts user to make decisions
     llist.promptUserForAction(llist)
 
+    # deletes object when the user decides to fully exit
     del llist
 
-    print('Thanks for checking the weather!')
+    # thank user for using the program
+    print('\nThanks for checking the weather!')
